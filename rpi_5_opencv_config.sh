@@ -5,7 +5,7 @@
 # From windows you can sftp into the pi and copy this repo into /home/{$USER}/Projects
 # sftp loki@xxx.xxx.xxx.xxx
 # 
-# wget https://github.com/davemers0160/Common/raw/master/misc/rpi_5_opencv_config.sh
+# wget https://raw.githubusercontent.com/davemers0160/opencv_ex/main/rpi_5_opencv_config.sh
 #
 # put this file in the user home directory and then run the following:
 # chmod +x rpi_5_opencv_config.sh
@@ -17,40 +17,38 @@
 # dos2unix rpi_5_opencv_config.sh
 # -----------------------------------------------------------------------------
 
-readonly OPENCV_VERSION=4.5.5  # controls the default version (gets reset by the first argument)
-
+readonly OPENCV_VERSION=4.10.0  # issues with ffmpeg version 5.1 and earlier versions of opencv require 4.10+
 
 sudo apt-get update
-sudo apt-get install -y build-essential git cmake libusb-1* libsndfile1 unzip pkg-config
+sudo apt-get install -y build-essential git cmake libusb-1* libsndfile1 unzip pkg-config libncurses5-dev
 sudo apt-get install -y libjpeg-dev libtiff-dev libpng-dev libturbojpeg0-dev
 sudo apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
 sudo apt-get install -y libgtk2.0-dev libcanberra-gtk3-module libgtk-3-dev
 sudo apt-get install -y libgstreamer1.0-dev gstreamer1.0-gtk3
 sudo apt-get install -y libgstreamer-plugins-base1.0-dev gstreamer1.0-gl
-sudo apt-get install -y libxvidcore-dev libx264-dev libavresample-dev 
+sudo apt-get install -y libxvidcore-dev libx264-dev 
+#sudo apt-get install -y libavresample-dev v4l2ucp
 sudo apt-get install -y python3-dev python3-numpy python3-pip
-sudo apt-get install -y libv4l-dev v4l-utils v4l2ucp
+sudo apt-get install -y libv4l-dev v4l-utils 
 sudo apt-get install -y libopenblas-dev libatlas-base-dev libblas-dev
 sudo apt-get install -y liblapack-dev gfortran libhdf5-dev
 #sudo apt-get install -y libprotobuf-dev libgoogle-glog-dev libgflags-dev
 #sudo apt-get install -y protobuf-compiler
-sudo apt-get install -y libtbbmalloc2 libtbb-dev libtbb2
+sudo apt-get install -y libtbb-dev 
 
-# libdc1394-22-dev \
+# libdc1394-22-dev 
+# libtbbmalloc2 libtbb2 \
 # libeigen3-dev \
 # libglew-dev \
 # libgstreamer-plugins-bad1.0-dev \
 # gstreamer1.0-plugins-ugly \
 # gstreamer1.0-tools \
-# gstreamer1.0-gl \
 # qt4-default \
 # libjpeg62-turbo-dev \
 # liblapacke-dev \
 # libpostproc-dev \
 # libtesseract-dev \
 # libxine2-dev \
-# python3-dev \
-# python3-numpy \
 # python3-matplotlib \
 # qv4l2 \
 # zlib1g-dev
@@ -81,6 +79,7 @@ mkdir -p build
 cd build
 
 # run cmake to build opencv
+echo "Building OpenCV... This may take some time"
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D CMAKE_INSTALL_PREFIX=/usr/local \
     -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
@@ -99,6 +98,10 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D WITH_VTK=OFF \
     -D WITH_QT=OFF \
     -D WITH_PROTOBUF=OFF \
+    -D BUILD_opencv_dnn=OFF \
+    -D BUILD_opencv_dnn_objdetect=OFF \
+    -D BUILD_opencv_dnn_superres=OFF \
+    -D OPENCV_DNN_PERF_CAFFE=OFF \
     -D OPENCV_ENABLE_NONFREE=ON \
     -D INSTALL_C_EXAMPLES=OFF \
     -D INSTALL_PYTHON_EXAMPLES=OFF \
@@ -112,10 +115,16 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
         # -D EIGEN_INCLUDE_PATH=/usr/include/eigen3 
         # -D WITH_OPENGL=ON
         # -D WITH_GTK=OFF
-        # -D WITH_QT=4"
+        
+make -j8
+sudo make install && sudo ldconfig
 
+# cleanup to free space
+make clean
+sudo apt-get update
 
 # grab all of the projects 
+cd ~
 mkdir -p Projects
 cd Projects
 
@@ -127,11 +136,9 @@ git clone https://github.com/davemers0160/python_common
 
 git clone --recursive https://github.com/davemers0160/rapidyaml
 
-git clone 
-
 # build the rapidyaml library
 cd rapidyaml
-mkdir build
+mkdir -p build
 cd build
 cmake -DBUILD_SHARED_LIBS=ON ..
 cmake --build . --config Release -- -j4
@@ -139,26 +146,24 @@ sudo make install && sudo ldconfig
 
 cd ~/Projects
 
-# clone the SDR library
-git clone https://github.com/davemers0160/SDR
+# clone the example OpenCV repo
+git clone https://github.com/davemers0160/opencv_ex
+
 
 # build the tx hop example
-cd SDR/bladerf/tx_hop_example
-mkdir build
+cd opencv_ex/web_cam_stream
+mkdir -p build
 cd build
 cmake ..
 cmake --build . --config Release -- -j4
 
-# copy the service that will start the bladeRF code
-# note: ${USER} in the bladerf.service file will need to be changed to the actual username
-sudo cp /home/${USER}/Projects/SDR/bladerf/common/bladerf.service /lib/systemd/system/.
-
-# reload the systemd daemon
-sudo systemctl daemon-reload
-
-# enable the bladerf serrvice and autostart
-sudo systemctl enable bladerf.service
 
 echo "Run the following command:"
 echo "sudo nano /boot/firmware/cmdline.txt"
 echo "- add the following to the end of the line: \" usbcore.usbfs_memory_mb=2048 \" "
+echo " "
+echo "run the following commands to change the swap file size.  Find the line CONF_SWAPSIZE "
+echo "sudo dphys-swapfile swapoff"
+echo "sudo nano /etc/dphys-swapfile.conf"
+echo "sudo systemctl restart dphys-swapfile"
+echo " "
