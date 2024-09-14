@@ -25,7 +25,7 @@ sudo apt-get install -y libjpeg-dev libtiff-dev libpng-dev libturbojpeg0-dev
 sudo apt-get install -y libavcodec-dev libavformat-dev libswscale-dev
 sudo apt-get install -y libgtk2.0-dev libcanberra-gtk3-module libgtk-3-dev
 sudo apt-get install -y libgstreamer1.0-dev gstreamer1.0-gtk3
-sudo apt-get install -y libgstreamer-plugins-base1.0-dev gstreamer1.0-gl
+sudo apt-get install -y libgstreamer-plugins-base1.0-dev gstreamer1.0-gl gstreamer1.0-plugins-ugly gstreamer1.0-tools gstreamer1.0-rtsp
 sudo apt-get install -y libxvidcore-dev libx264-dev 
 #sudo apt-get install -y libavresample-dev v4l2ucp
 sudo apt-get install -y python3-dev python3-numpy python3-pip
@@ -41,7 +41,6 @@ sudo apt-get install -y libtbb-dev
 # libeigen3-dev \
 # libglew-dev \
 # libgstreamer-plugins-bad1.0-dev \
-# gstreamer1.0-plugins-ugly \
 # gstreamer1.0-tools \
 # qt4-default \
 # libjpeg62-turbo-dev \

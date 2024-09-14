@@ -82,7 +82,7 @@ int main(int argc, char** argv)
         //rtsp_stream = "appsrc ! videoconvert ! video/x-raw, format=I420, format=BGR ! x264enc speed-preset=ultrafast key-int-max=60 ! video/x-h264, profile=baseline ! rtspclientsink protocols=tcp location=rtsp://192.168.1.150:8554/web_cam_stream";
         
         // fill the RTSP stream string with the correct values
-        rtsp_stream = "appsrc ! videoconvert ! video/x-raw, format=I420 ! x264enc speed-preset=ultrafast key-int-max=60 ! video/x-h264, profile=baseline ! rtspclientsink protocols=tcp location=rtsp://127.0.0.1:8554/web_cam_stream";
+        rtsp_stream = "appsrc ! videoconvert ! video/x-raw, format=I420 ! x264enc speed-preset=ultrafast key-int-max=60 ! video/x-h264, profile=baseline ! rtspclientsink protocols=tcp location=rtsp://192.168.1.22:8554/web_cam_stream";
 
         cv::VideoWriter writer(rtsp_stream, cv::CAP_GSTREAMER, four_cc, fps, cv::Size(img_w, img_h), true);
 
